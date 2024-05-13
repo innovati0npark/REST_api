@@ -42,12 +42,16 @@ INSTALLED_APPS = [
     'auth_api',
     "api",
     'corsheaders',
+    'django_filters',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근 허용
     # ],
