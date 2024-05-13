@@ -1,0 +1,83 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product</title>
+</head>
+<body>
+    <h1>Product List 123</h1>
+    <ul id="goodness"></ul>
+
+    <script>
+        fetch('http://127.0.0.1:8000/api/products/')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('goodness');
+                data.forEach(product => {
+                    const item = document.createElement('li');
+                    item.textContent = `${product.name} //  $${product.price}`;
+                    list.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login and Fetch Data</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <h1>Data</h1>
+    <ul id="dataList"></ul>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8000/auth_api/api_token_auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                sessionStorage.setItem('token', data.token);
+                fetchData();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchData() {
+            const token = sessionStorage.getItem('token');
+            fetch('http://localhost:8000/api/products/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('dataList');
+                list.innerHTML = '';  // Clear previous data
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.name} - $${item.price}`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
