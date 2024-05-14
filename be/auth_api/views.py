@@ -18,3 +18,4 @@ class CustomAuthToken(ObtainAuthToken):
             'email': user.email
         })
     
+#post 요청만 처리가능함.
