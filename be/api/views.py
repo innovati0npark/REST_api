@@ -29,10 +29,12 @@ class ProductViewSet(viewsets.ModelViewSet):
 # 이러한 요청들은 각각 CRUD(Create, Retrieve, Update, Delete) 연산에 해당하며, ModelViewSet은 이러한 연산을 모두 지원합니다. 
 
 # 따라서 ProductViewSet도 이러한 요청을 모두 처리할 수 있습니다.
+
 from rest_framework.pagination import PageNumberPagination
 
 class ProductPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 3
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()

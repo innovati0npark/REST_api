@@ -1,17 +1,40 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login and Fetch Data</title>
+    <title>Login, Fetch Data, and File Upload</title>
 </head>
 <body>
     <h1>Login</h1>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
+    <div id="loginForm">
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <h1 id="welcomeMessage" style="display: none;">Welcome!</h1>
 
     <h1>Data</h1>
     <ul id="dataList"></ul>
+
+    <h2>Select Page</h2>
+    <button onclick="fetchData(1)">Page 1</button>
+    <button onclick="fetchData(2)">Page 2</button>
+    <button onclick="fetchData(3)">Page 3</button>
+
+    <h1>Upload Image</h1>
+    <form id="imageForm">
+        <input type="text" id="imageTitle" placeholder="Image Title"> 
+        <input type="file" id="imageFile">
+        <button type="button" onclick="uploadImage()">Upload</button>
+    </form>
+
+    <h1>Upload Document</h1>
+    <form id="documentForm">
+        <input type="text" id="documentDescription" placeholder="Document Description">
+        <input type="file" id="documentFile">
+        <button type="button" onclick="uploadDocument()">Upload</button>
+    </form>
 
     <script>
         function login() {
@@ -28,14 +51,17 @@
             .then(response => response.json())
             .then(data => {
                 sessionStorage.setItem('token', data.token);
-                fetchData();
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
+                document.getElementById('welcomeMessage').style.display = 'block';
+                fetchData(1);
             })
             .catch(error => console.error('Error:', error));
         }
 
-        function fetchData() {
+        function fetchData(pageNumber) {
             const token = sessionStorage.getItem('token');
-            fetch('http://localhost:8000/api/products/', {
+            fetch(`http://localhost:8000/api/products/?page=${pageNumber}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Token ${token}`
@@ -45,7 +71,7 @@
             .then(data => {
                 const list = document.getElementById('dataList');
                 list.innerHTML = '';  // Clear previous data
-                data.forEach(item => {
+                data.results.forEach(item => {
                     const li = document.createElement('li');
                     li.textContent = `${item.name} - $${item.price}`;
                     list.appendChild(li);
@@ -53,81 +79,70 @@
             })
             .catch(error => console.error('Error:', error));
         }
-    </script>
-</body>
-</html> -->
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login and Fetch Data</title>
-</head>
-<body>
-    <h1>Login</h1>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
+        function uploadImage() {
+            const token = sessionStorage.getItem('token');
+            const fileInput = document.getElementById('imageFile');
+            const titleInput = document.getElementById('imageTitle'); // Get the image title
+            const formData = new FormData();
+            
+            if (!fileInput.files[0]) {
+                alert("파일을 선택해 주세요");
+                return;
+            }
 
-    <h1>Search</h1>
-    <input type="text" id="search" placeholder="Search">
-    <input type="number" id="minPrice" placeholder="Min price">
-    <input type="number" id="maxPrice" placeholder="Max price">
-    <button onclick="fetchData()">Search</button>
+            formData.append('image', fileInput.files[0]); // 'image' matches the field name in your Django model
+            formData.append('title', titleInput.value); // 'title' matches the field name in your Django model
 
-    <h1>Data</h1>
-    <ul id="dataList"></ul>
-
-    <script>
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            fetch('http://localhost:8000/auth_api/api_token_auth/', {
+            fetch('http://localhost:8000/file/images/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Authorization': `Token ${token}`
                 },
-                body: JSON.stringify({ username, password })
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
-                sessionStorage.setItem('token', data.token);
-                fetchData();
+                console.log('Success:', data);
+                alert("정상적으로 업로드 되었습니다");
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert("업로드 실패~!잉");
+            });
         }
 
-        function fetchData() {
+        function uploadDocument() {
             const token = sessionStorage.getItem('token');
-            const search = document.getElementById('search').value;
-            const minPrice = document.getElementById('minPrice').value;
-            const maxPrice = document.getElementById('maxPrice').value;
+            const fileInput = document.getElementById('documentFile');
+            const descriptionInput = document.getElementById('documentDescription'); // Get the document description
+            const formData = new FormData();
 
-            fetch(`http://localhost:8000/api/products/?name=${search}&price_gte=${minPrice}&price_lte=${maxPrice}`, {
-                method: 'GET',
+            if (!fileInput.files[0]) {
+                alert("파일을 선택해 주세요");
+                return;
+            }
+            
+            formData.append('document', fileInput.files[0]); // 'document' matches the field name in your Django model
+            formData.append('description', descriptionInput.value); // 'description' matches the field name in your Django model
+
+            fetch('http://localhost:8000/file/documents/', {
+                method: 'POST',
                 headers: {
                     'Authorization': `Token ${token}`
-                }
+                },
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
-                const list = document.getElementById('dataList');
-                list.innerHTML = '';  // Clear previous data
-                if (Array.isArray(data)) {
-                    data.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `${item.name} - $${item.price}`;
-                        list.appendChild(li);
-                    });
-                } else if (data && data.name && data.price) {
-                    const li = document.createElement('li');
-                    li.textContent = `${data.name} - $${data.price}`;
-                    list.appendChild(li);
-                }
+                console.log('Success:', data);
+                alert("정상적으로 업로드 되었습니다");
             })
-            .catch(error => console.error('Error:', error));
-                    }
+            .catch(error => {
+                console.error('Error:', error);
+                alert("업로드 실패~!잉");
+            });
+        }
     </script>
 </body>
 </html>

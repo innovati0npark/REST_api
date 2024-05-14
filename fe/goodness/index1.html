@@ -1,0 +1,328 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login and Fetch Data</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <h1>Data</h1>
+    <ul id="dataList"></ul>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8000/auth_api/api_token_auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                sessionStorage.setItem('token', data.token);
+                fetchData();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchData() {
+            const token = sessionStorage.getItem('token');
+            fetch('http://localhost:8000/api/products/?page=1', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Add this line
+                const list = document.getElementById('dataList');
+                list.innerHTML = '';  // Clear previous data
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.name} - $${item.price}`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html> -->
+
+<!-- paginagion -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login and Fetch Data</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <h1>Data</h1>
+    <ul id="dataList"></ul>
+
+    <h2>Select Page</h2>
+    <button onclick="fetchData(1)">Page 1</button>
+    <button onclick="fetchData(2)">Page 2</button>
+    <button onclick="fetchData(3)">Page 3</button>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8000/auth_api/api_token_auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                sessionStorage.setItem('token', data.token);
+                fetchData(1);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchData(pageNumber) {
+            const token = sessionStorage.getItem('token');
+            fetch(`http://localhost:8000/api/products/?page=${pageNumber}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('dataList');
+                list.innerHTML = '';  // Clear previous data
+                data.results.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.name} - $${item.price}`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login and Fetch Data</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <div id="loginForm">
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <h1 id="welcomeMessage" style="display: none;">Welcome!</h1>
+
+    <h1>Search</h1>
+    <input type="text" id="search" placeholder="Search">
+    <input type="number" id="minPrice" placeholder="Min price">
+    <input type="number" id="maxPrice" placeholder="Max price">
+    <button onclick="fetchData()">Search</button>
+
+    <h1>Data</h1>
+    <ul id="dataList"></ul>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8000/auth_api/api_token_auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                sessionStorage.setItem('token', data.token);
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('welcomeMessage').style.display = 'block';
+                fetchData();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchData() {
+            const token = sessionStorage.getItem('token');
+            const search = document.getElementById('search').value;
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+
+            fetch(`http://localhost:8000/api/products/?name=${search}&price_gte=${minPrice}&price_lte=${maxPrice}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('dataList');
+                list.innerHTML = '';  // Clear previous data
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `${item.name} - $${item.price}`;
+                        list.appendChild(li);
+                    });
+                } else if (data && data.name && data.price) {
+                    const li = document.createElement('li');
+                    li.textContent = `${data.name} - $${data.price}`;
+                    list.appendChild(li);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+                    }
+    </script>
+
+
+
+<h1>Upload Image</h1>
+<form id="imageForm">
+    <input type="file" id="imageFile">
+    <button type="button" onclick="uploadImage()">Upload</button>
+</form>
+
+<h1>Upload Document</h1>
+<form id="documentForm">
+    <input type="file" id="documentFile">
+    <button type="button" onclick="uploadDocument()">Upload</button>
+</form>
+
+<script>
+    function uploadImage() {
+        const token = sessionStorage.getItem('token');
+        const fileInput = document.getElementById('imageFile');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        fetch('http://localhost:8000/file/images/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${token}`
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch(error => console.error('Error:', error));
+    }
+
+    function uploadDocument() {
+        const token = sessionStorage.getItem('token');
+        const fileInput = document.getElementById('documentFile');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        fetch('http://localhost:8000/file/documents/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${token}`
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html> -->
+
+
+
+<!-- 파일업로드 성공 -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Manager</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        function fetchFiles() {
+            $.ajax({
+                url: 'http://localhost:8000/file/images/',
+                type: 'GET',
+                success: function(files) {
+                    $('#files').empty();
+                    files.forEach(function(file) {
+                        $('#files').append(
+                            `<li>${file.title}: <a href="${file.image}">Download</a></li><img src="${file.image}">${file.image}`
+                        );
+                    });
+                }
+            });
+        }
+
+        $('#uploadForm').on('submit', function(e){
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: 'http://localhost:8000/file/images/',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function() {
+                    alert('File uploaded!');
+                    fetchFiles();
+                },
+                error: function() {
+                    alert('File upload failed.');
+                }
+            });
+        });
+
+        fetchFiles();
+    });
+    </script>
+</head>
+<body>
+    <h1>File Upload</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="Enter file title" required>
+        <input type="file" name="image" required>
+        <button type="submit">Upload File</button>
+    </form>
+
+    <h2>Uploaded Files</h2>
+    <ul id="files"></ul>
+</body>
+</html> -->
